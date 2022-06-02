@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <title>评估</title>
+    <script type="text/javascript" charset="UTF-8" src="../js/js/jquery-1.10.1.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        .cz{
+            display: flex;
+            justify-content: center;
+            align-content: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div style="margin: 20px auto;width: 80%;">
+    <div id="content1">
+        <div class="cz" style="font-size: 1.1rem;font-weight: bold">被评人：<text id="beiping"></text></div>
+        <div class="cz" style="font-size: 1rem;font-weight: bold;color: #FC861C;">对方不会看到您的评分</div>
+        <div class="cz">总分：<text id="score"></text></div>
+        <div  class="cz">
+            学员态度1：<select   style="width:60%;height:2rem;background:#D3D3D3;font-size: 16px " id="selectId1"> </select>
+        </div>
+        <div  class="cz">
+            学员态度2：<select   style="width:60%;height:2rem;background:#D3D3D3;font-size: 16px " id="selectId2"> </select>
+        </div>
+        <div class="cz">您的姓名：<input id="name" style="width: 60%;height:2rem;font-size: 16px"/></div>
+        <div  class="cz">联系方式：<input id="mobile" style="width: 60%;height:2rem;font-size: 16px" /></div>
+        <div  class="cz">意见(选填)： </div>
+        <div style="padding:20px;display: flex;justify-content: center">
+            <textarea style="width: 100%;height: 200px;font-size: 16px" id="content"></textarea>
+        </div>
+        <div style="margin: 20px auto;display: flex;align-content: center;justify-content: center"><button onclick="saveEvaluateScore()" style="width: 30%;height:1.8rem">保存</button></div>
+    </div>
+    <div id="content2" style="display: none;text-align: center">感谢参与！</div>
+</div>
+</body>
+</html>
+<script type="text/javascript">
+    var searchURL = window.location.search;
+    searchURL = searchURL.substring(1, searchURL.length);
+    var user_id = searchURL.split("&")[0].split("=")[1];
+    var user_name = decodeURIComponent(searchURL.split("&")[1].split("=")[1]);
+    $('#beiping').html(user_name);
+    var allScore = 0; //总得分
+
+    for(var i = 0 ; i <= 10;i++){
+        $("#selectId1").append("<option value="+i+">"+i+"分</option>");
+    }
+    for(var i = 0 ; i <= 20;i++){
+        $("#selectId2").append("<option value="+i+">"+i+"分</option>");
+    }
+
+    //监听下拉框1
+    $("#selectId1").change(function () {
+          var score = ($('#selectId1').val());
+          var score2 = $("#selectId2").val();
+         allScore = Number(score) + Number(score2);
+          $("#score").html(allScore+'分');
+    })
+    //监听下拉框2
+    $("#selectId2").change(function () {
+        var score = ($('#selectId2').val());
+        var score1 = $("#selectId1").val();
+        allScore = Number(score) + Number(score1);
+        $("#score").html(allScore+'分');
+    })
+
+
+    //保存评价
+    function saveEvaluateScore() {
+        //var user_id = user_id;
+        var user_id = 2;
+        var allScore = $("#score").html();
+        var name = $('#name').val();
+        var mobile = $('#mobile').val();
+        var content = $('#content').val();
+        if(name == ''){
+             alert('请输入姓名');
+             return false;
+        }
+        var data = {'user_id':user_id,"name":name,"mobile":mobile,"content":content,'allScore':allScore};
+        $.ajax({
+            url:'http://172.20.10.6/one/evaluate/saveEvaluate.php',
+            data:data,
+            type:"post",
+            dataType:"JSON",
+            success:function (res) {
+               if(res.status == 1){
+                   $('#content1').hide();
+                   $('#content2').show();
+                   alert('保存成功')
+               }else{
+                   alert(res.msg);
+                }
+            },fail:function (res) {
+                console.log('请求失败');
+            }
+        })
+        
+    }
+</script>

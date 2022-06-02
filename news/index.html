@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>发布通知公告</title>
+    <script type="text/javascript" charset="utf-8" src="../js/kindeditor/kindeditor-all.js"></script>
+    <script type="text/javascript" charset="utf-8"  src="../js/js/jquery-1.10.1.min.js"></script>
+</head>
+<body>
+<div style="margin: 10px auto;width: 700px">
+    <div style="padding: 10px">标题：<input id="title"/></div>
+    <div style="padding: 10px">发布人：<input id="name"/></div>
+    <textarea id="editor_id" name="content" style="width:700px;height:300px;"></textarea>
+    <div style="margin: 10px auto;display: flex;align-content: center;justify-content: center"><button onclick="saveNews()" style="width: 60px">保存</button></div>
+</div>
+
+</body>
+</html>
+<script type="text/javascript">
+    //发布作品编辑器
+    var editor1;
+    KindEditor.ready(function(K) {
+        editor1 = K.create('textarea[name="content"]', {
+            cssPath : '',
+            uploadJson : '/news/uploadImage.php',
+            fileManagerJson : '',
+            allowFileManager : false,
+            filterMode:false,
+            pasteType: 1,   //0:禁止粘贴, 1:纯文本粘贴, 2:HTML粘贴
+            items : [
+                'source', '|', 'undo', 'redo', '|', 'paste',
+                'plainpaste', 'wordpaste', '|', 'justifyleft', 'justifycenter', 'justifyright',
+                'justifyfull', 'insertorderedlist', 'insertunorderedlist', 'indent', 'outdent', 'subscript',
+                'superscript', 'clearhtml', 'quickformat', 'selectall', '|', 'fullscreen', '/',
+                'formatblock', 'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold',
+                'italic', 'underline', 'strikethrough', 'lineheight', 'removeformat', '|', 'image', 'link', 'unlink', '|', 'about'
+            ]
+        });
+    });
+
+    //保存通知公告
+    function  saveNews(){
+        var title = document.getElementById('title').val();
+         var title = $('#title').val();
+         if(title == '' || title == null){
+            alert('请输入标题');
+            return false;
+         }
+        editor1.sync(); //将编辑器图片同步到textarea中
+        var content = $('#editor_id').val(); // jQuery
+        if(content == null || content == ''){
+            alert('请输入内容');
+            return false;
+        }
+         var name = $('#name').val();
+         var data = {'title':title,'content':content,'name':name};
+        console.log('传入数据---',data);
+        $.ajax({
+            type:"POST",
+            dataType:"JSON",
+            url:"/news/saveNews.php",
+            data:data,
+            success:function (res) {
+                if(res.status == 1){
+                   alert(res.msg);
+                }else{
+                    alert(res.msg);
+                }
+            },
+            error:function (res) {
+                console.log('请求失败');
+            }
+
+        })
+
+    }
+</script>
